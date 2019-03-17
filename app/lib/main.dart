@@ -26,7 +26,6 @@ class AnimatedCharts extends StatelessWidget {
       title: "Flutter Charts",
       initialRoute: '/travel',
       routes: {
-        '/charts': (context) => ChartsPage(),
         '/travel': (context) => TravelPage(),
         '/': (context) => Error(),
       },
