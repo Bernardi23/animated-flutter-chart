@@ -13,16 +13,23 @@ class _DestinationState extends State<Destination>
     with SingleTickerProviderStateMixin {
   final _data = DestinationsData.data;
   UserDestination _currentDest;
+  bool _stateIsAboutToChange;
 
   @override
   void initState() {
     _currentDest = _data[0];
+    _stateIsAboutToChange = false;
     super.initState();
   }
 
-  void _onPageChanged(int index) {
+  void _onPageChanged(int index) async {
     setState(() {
-      _currentDest = _data[index];
+      _stateIsAboutToChange = true;
+    });
+    Future.delayed(Duration(milliseconds: 200)).then((_) {
+      setState(() {
+        _currentDest = _data[index];
+      });
     });
   }
 
@@ -32,7 +39,10 @@ class _DestinationState extends State<Destination>
       overflow: Overflow.visible,
       children: <Widget>[
         DestinationCard(data: _data, onPageChanged: _onPageChanged),
-        DestinationInfoCard(currentDest: _currentDest)
+        DestinationInfoCard(
+          currentDest: _currentDest,
+          stateController: _stateIsAboutToChange,
+        )
       ],
     );
   }
@@ -40,14 +50,78 @@ class _DestinationState extends State<Destination>
 
 class DestinationInfoCard extends StatefulWidget {
   final UserDestination currentDest;
+  final bool stateController;
 
-  DestinationInfoCard({@required this.currentDest});
+  DestinationInfoCard(
+      {@required this.currentDest, @required this.stateController});
 
   @override
   _DestinationInfoCardState createState() => _DestinationInfoCardState();
 }
 
-class _DestinationInfoCardState extends State<DestinationInfoCard> {
+class _DestinationInfoCardState extends State<DestinationInfoCard>
+    with SingleTickerProviderStateMixin {
+  AnimationController _animationController;
+  Animation<double> _startingInfoOpacity;
+  Animation<double> _startingInfoHeight;
+
+  Animation<double> _endingInfoOpacity;
+  Animation<double> _endingInfoHeight;
+
+  bool _startingAnimationHasEnded;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _startingAnimationHasEnded = false;
+
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300))
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              _startingAnimationHasEnded = true;
+              _animationController.reverse();
+            } else if (status == AnimationStatus.dismissed) {
+              _startingAnimationHasEnded = false;
+            }
+          });
+
+    _startingInfoOpacity =
+        Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+
+    _startingInfoHeight =
+        Tween<double>(begin: 10.0, end: 0.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+
+    _endingInfoOpacity =
+        Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+
+    _endingInfoHeight =
+        Tween<double>(begin: 10.0, end: 20.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+
+    // if (widget.stateController) _animationController.forward();
+  }
+
+  @override
+  void didUpdateWidget(DestinationInfoCard infoCard) {
+    super.didUpdateWidget(infoCard);
+    if (_animationController.isDismissed) {
+      _animationController.forward();
+    }
+  }
+
   Center pageIndicator() {
     return Center(
       child: Container(
@@ -85,36 +159,67 @@ class _DestinationInfoCardState extends State<DestinationInfoCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: -50,
-      left: MediaQuery.of(context).size.width * 0.13,
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.7,
-        height: 110,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              blurRadius: 7,
-              spreadRadius: 3,
-              color: Colors.blue[900].withOpacity(0.1),
-            )
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 18, right: 18, top: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              destinationName(),
-              Container(height: 5),
-              destinationDescription(),
-              Container(height: 22),
-              pageIndicator(),
-            ],
+    return SizedBox(
+      height: 230,
+      child: Stack(
+        overflow: Overflow.visible,
+        children: <Widget>[
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (BuildContext context, Widget child) {
+              return Positioned(
+                bottom: -50,
+                left: MediaQuery.of(context).size.width * 0.13,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        blurRadius: 7,
+                        spreadRadius: 3,
+                        color: Colors.blue[900].withOpacity(0.1),
+                      )
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 18, right: 18, top: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          height: (!_startingAnimationHasEnded)
+                              ? _startingInfoHeight.value
+                              : _endingInfoHeight.value,
+                        ),
+                        Opacity(
+                          opacity: (!_startingAnimationHasEnded)
+                              ? _startingInfoOpacity.value
+                              : _endingInfoOpacity.value,
+                          child: destinationName(),
+                        ),
+                        Container(height: 5),
+                        Opacity(
+                          opacity: (!_startingAnimationHasEnded)
+                              ? _startingInfoOpacity.value
+                              : _endingInfoOpacity.value,
+                          child: destinationDescription(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-        ),
+          Positioned(
+            left: MediaQuery.of(context).size.width / 2 - 5,
+            bottom: -40,
+            child: pageIndicator(),
+          )
+        ],
       ),
     );
   }
