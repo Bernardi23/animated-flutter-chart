@@ -14,7 +14,7 @@ class Recommended extends StatelessWidget {
         itemCount: _data.length,
         itemBuilder: (BuildContext context, int index) {
           return Container(
-            margin: EdgeInsets.only(top: 10, bottom: 40, left: 20),
+            margin: EdgeInsets.only(top: 15, bottom: 15, left: 20),
             width: 135,
             height: 110,
             decoration: BoxDecoration(
@@ -54,7 +54,6 @@ class Recommended extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.white,
-                            // fontFamily: 'Gilroy',
                             fontWeight: FontWeight.w500,
                           ),
                         ),

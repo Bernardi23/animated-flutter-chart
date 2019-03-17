@@ -15,7 +15,9 @@ class _PageBodyState extends State<PageBody> {
   Widget _pageViewItem(BuildContext ctx, int index) {
     // return Container(width: 150.0, height: 150.0, color: Colors.green);
     return Transform(
-      transform: Matrix4.identity()..rotateY(_scrollSpeed * 1.1),
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.002)
+        ..rotateY(_scrollSpeed * 1.1),
       alignment: Alignment.center,
       child: Container(
         margin: EdgeInsets.only(top: 30.0, left: 30, right: 30, bottom: 25),

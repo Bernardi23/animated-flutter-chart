@@ -1,3 +1,11 @@
+class User {
+  String username;
+  String pictureUrl;
+  String location;
+
+  User({this.username, this.pictureUrl, this.location});
+}
+
 class Destination {
   final String name;
   final String description;
@@ -14,6 +22,27 @@ class Destination {
     this.rating,
     this.isSaved = false,
   });
+}
+
+class UserDestination extends Destination {
+  User author;
+
+  UserDestination({
+    String name,
+    String description,
+    String url,
+    int temperature,
+    double rating,
+    bool isSaved,
+    this.author,
+  }) : super(
+          name: name,
+          description: description,
+          url: url,
+          temperature: temperature,
+          rating: rating,
+          isSaved: isSaved,
+        );
 }
 
 class RecommendedData {
@@ -54,33 +83,48 @@ class RecommendedData {
 }
 
 class DestinationsData {
-  static List<Destination> data = <Destination>[
-    Destination(
+  static List<UserDestination> data = <UserDestination>[
+    UserDestination(
       name: "Tokyo",
-      description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamc.",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       url:
           "https://images.pexels.com/photos/1727627/pexels-photo-1727627.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
       temperature: 24,
       rating: 4.1,
+      author: User(
+        username: "Saby",
+        pictureUrl:
+            "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
+        location: "Tokyo, Japan",
+      ),
     ),
-    Destination(
-      name: "Hawai",
-      description:
-          "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat.",
+    UserDestination(
+      name: "Hawaii",
+      description: "Quis autem vel eum iure reprehenderit qui in ea voluptate.",
       url:
-          "https://images.pexels.com/photos/1151831/pexels-photo-1151831.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
+          "https://images.pexels.com/photos/1533729/pexels-photo-1533729.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
       temperature: 26,
       rating: 4.9,
+      author: User(
+        username: "Mark",
+        pictureUrl:
+            "https://images.pexels.com/photos/736716/pexels-photo-736716.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
+        location: "Hawaii, USA",
+      ),
     ),
-    Destination(
+    UserDestination(
       name: "Iceland",
-      description:
-          "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi.",
+      description: "At vero eos et accusamus et iusto odio .",
       url:
           "https://images.pexels.com/photos/1009136/pexels-photo-1009136.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
       temperature: 17,
       rating: 4.7,
+      author: User(
+        username: "Sarah",
+        pictureUrl:
+            "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260",
+        location: "Reykjavík, Iceland",
+      ),
     ),
   ];
 }
